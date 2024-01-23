@@ -18,7 +18,6 @@ def hello_world():
 @app.route("/classify", methods=["GET"])
 def classify():
     if request.method == "GET":
-        # Assuming your intent classification model is running on localhost:8080
         model_endpoint = os.getenv("CLASSIFICATION_MODEL_ENDPOINT")
 
         query = request.args.get("query", "")
