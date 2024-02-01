@@ -23,6 +23,7 @@ def handle_connect():
 
 @socketio.on("disconnect")
 def handle_disconnect():
+    # disconnect the client
     print("Client disconnected")
 
 
