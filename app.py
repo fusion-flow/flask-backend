@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import os
 from flask_socketio import SocketIO
 from flask_cors import CORS
+from pydub import AudioSegment
+from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)
@@ -36,6 +38,24 @@ def handle_message(message):
     print("message:", message)
     socketio.emit("message", "hello honeybee")
 
+
+@socketio.on("audio_message")
+def handle_message(audio_blob):
+    blob_to_mp3(audio_blob)
+    socketio.emit("audio_message", "hello bee")
+
+
+def blob_to_mp3(blob_data, output_filename='output.mp3'):
+    try:
+        # Convert blob data to AudioSegment
+        audio_segment = AudioSegment.from_file(BytesIO(blob_data))
+
+        # Export the AudioSegment to an MP3 file
+        # audio_segment.export(output_filename, format='mp3')
+
+        print(f"Conversion successful. MP3 file saved as '{output_filename}'")
+    except Exception as e:
+        print(f"Error: {e}")
 
 @app.route("/")
 def hello_world():
