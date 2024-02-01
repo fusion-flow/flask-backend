@@ -3,14 +3,33 @@ from flask import Flask, render_template, request, jsonify
 import requests
 from dotenv import load_dotenv
 import os
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Load environment variables from .env file
 load_dotenv()
 
 print("CLASSIFICATION_MODEL_ENDPOINT:", os.getenv("CLASSIFICATION_MODEL_ENDPOINT"))
 print("RECOGNIZER_MODEL_ENDPOINT:", os.getenv("RECOGNIZER_MODEL_ENDPOINT"))
+
+
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected")
+    print("===================")
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Client disconnected")
+
+
+@socketio.on("message")
+def handle_message(message):
+    print("message:", message)
+    socketio.emit("message", "hello honeybee")
 
 
 @app.route("/")
@@ -148,4 +167,4 @@ def recognize():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
