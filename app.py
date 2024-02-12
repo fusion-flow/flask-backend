@@ -62,14 +62,15 @@ def handle_message(audio_blob):
     socketio.emit("audio_message", "hello bee")
 
 def get_intents(intent_list):
-    threshold = 0.5
+    upper_threshold = 0.7
+    lower_threshold = 0.3
     unique_intents = set()
     for i in range(len(intent_list)):
         intent = intent_list[i]['text'].split('-')[1]
         score = intent_list[i]['score']
-        if (i<=0 and (score > threshold)):
+        if (i<=0 and (score > upper_threshold)):
             return {intent}
-        if score < threshold:
+        if score < lower_threshold:
             return unique_intents
         unique_intents.add(intent)
     return unique_intents
