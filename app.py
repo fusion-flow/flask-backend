@@ -77,9 +77,9 @@ def get_intents(intent_list):
 
         
     
-list_ = [{'id': '14', 'text': 'I need therapy support-Therapy Support', 'score': 0.5083133578300476}, {'id': '13', 'text': 'find me the resources for therapy-Therapy Support', 'score': 0.5053315162658691}, {'id': '11', 'text': 'Can I get information about therapy?-Therapy Support', 'score': 0.5044881105422974}, {'id': '12', 'text': 'Need details of therapy support for aphasia-Therapy Support', 'score': 0.5041456818580627}, {'id': '10', 'text': 'I want to know about therapy support-Therapy Support', 'score': 0.4566575288772583}, {'id': '7', 'text': 'resource page please-Resource page', 'score': 0.4267582595348358}, {'id': '8', 'text': 'navigate to resource page-Resource page', 'score': 0.4124424159526825}, {'id': '6', 'text': 'Show me the resources-Resource page', 'score': 0.3634762763977051}, {'id': '16', 'text': 'Guide me to the tech support page-Tech support', 'score': 0.35758644342422485}, {'id': '4', 'text': 'I need home page-Home page', 'score': 0.3337843418121338}]
+# list_ = [{'id': '14', 'text': 'I need therapy support-Therapy Support', 'score': 0.5083133578300476}, {'id': '13', 'text': 'find me the resources for therapy-Therapy Support', 'score': 0.5053315162658691}, {'id': '11', 'text': 'Can I get information about therapy?-Therapy Support', 'score': 0.5044881105422974}, {'id': '12', 'text': 'Need details of therapy support for aphasia-Therapy Support', 'score': 0.5041456818580627}, {'id': '10', 'text': 'I want to know about therapy support-Therapy Support', 'score': 0.4566575288772583}, {'id': '7', 'text': 'resource page please-Resource page', 'score': 0.4267582595348358}, {'id': '8', 'text': 'navigate to resource page-Resource page', 'score': 0.4124424159526825}, {'id': '6', 'text': 'Show me the resources-Resource page', 'score': 0.3634762763977051}, {'id': '16', 'text': 'Guide me to the tech support page-Tech support', 'score': 0.35758644342422485}, {'id': '4', 'text': 'I need home page-Home page', 'score': 0.3337843418121338}]
 
-print(get_intents(list_))
+# print(get_intents(list_))
 
 def blob_to_mp3(blob_data, output_filename='output.mp3'):
     try:
