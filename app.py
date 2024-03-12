@@ -1,12 +1,10 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 import requests
 from dotenv import load_dotenv
 import os
 from flask_socketio import SocketIO
 from flask_cors import CORS
-from pydub import AudioSegment
-from io import BytesIO
 from database.database_operations import select_data_by_intent, connect_db
 
 app = Flask(__name__)
@@ -40,7 +38,7 @@ def handle_message(message):
     query_result, status = perform_classification(message)
     client_url = os.getenv("CLIENT_URL")
 
-    if status == 200:
+    if(status == 200):
         if query_result:
             intents = list(get_intents(query_result))
             urls = select_data_by_intent(intents)
@@ -56,8 +54,50 @@ def handle_message(message):
 
 @socketio.on("audio_message")
 def handle_message(audio_blob):
-    blob_to_mp3(audio_blob)
-    socketio.emit("audio_message", "hello bee")
+    transcribed_text,status_code = transcribeAudio(audio_blob)
+    socketio.emit("audio_message", transcribed_text)
+
+def transcribeAudio(audio_file):
+    model_endpoint = os.getenv("TRANSCRIPTION_MODEL_ENDPOINT") + "/whisper/"
+    if not audio_file:
+        return jsonify({"error": "Missing audio file for transcription"}), 400
+
+    # Make a request to the intent classification model
+    try:
+        response = requests.post(model_endpoint, files={"files": audio_file})
+        print("response:", response.json())
+        if response.status_code == 200:
+            result = response.json()
+            print("Transcription result:", result)
+            return result, 200
+        else:
+            return (
+                jsonify(
+                    {
+                        "error": f"Error calling the transcription model: {response.status_code}"
+                    }
+                ),
+                500,
+            )
+
+    except requests.RequestException as e:
+        return (
+            jsonify(
+                {
+                    "error": f"Error calling the transcription model: {str(e)}"
+                }
+            ),
+            500,
+        )
+
+@socketio.on("video_message")
+def handle_message(video_blob):
+    print("video blob recieved")
+    file_path = 'video_file.mp3'
+    with open(file_path, 'wb') as f:
+        f.write(video_blob)
+
+    socketio.emit("video_message", "hello bee video")
 
 
 def get_intents(intent_list):
@@ -78,20 +118,6 @@ def get_intents(intent_list):
 # list_ = [{'id': '14', 'text': 'I need therapy support-Therapy Support', 'score': 0.5083133578300476}, {'id': '13', 'text': 'find me the resources for therapy-Therapy Support', 'score': 0.5053315162658691}, {'id': '11', 'text': 'Can I get information about therapy?-Therapy Support', 'score': 0.5044881105422974}, {'id': '12', 'text': 'Need details of therapy support for aphasia-Therapy Support', 'score': 0.5041456818580627}, {'id': '10', 'text': 'I want to know about therapy support-Therapy Support', 'score': 0.4566575288772583}, {'id': '7', 'text': 'resource page please-Resource page', 'score': 0.4267582595348358}, {'id': '8', 'text': 'navigate to resource page-Resource page', 'score': 0.4124424159526825}, {'id': '6', 'text': 'Show me the resources-Resource page', 'score': 0.3634762763977051}, {'id': '16', 'text': 'Guide me to the tech support page-Tech support', 'score': 0.35758644342422485}, {'id': '4', 'text': 'I need home page-Home page', 'score': 0.3337843418121338}]
 
 # print(get_intents(list_))
-
-
-def blob_to_mp3(blob_data, output_filename="output.mp3"):
-    try:
-        # Convert blob data to AudioSegment
-        audio_segment = AudioSegment.from_file(BytesIO(blob_data), format="mp3")
-
-        # Export the AudioSegment to an MP3 file
-        audio_segment.export(output_filename, format="mp3")
-
-        print(f"Conversion successful. MP3 file saved as '{output_filename}'")
-    except Exception as e:
-        print(f"Error: {e}")
-
 
 @app.route("/")
 def hello_world():
