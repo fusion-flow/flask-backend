@@ -55,6 +55,7 @@ def handle_message(message):
 @socketio.on("audio_message")
 def handle_message(audio_blob):
     transcribed_text,status_code = transcribeAudio(audio_blob)
+    # perform_classification(transcribed_text)
     socketio.emit("audio_message", transcribed_text)
 
 def transcribeAudio(audio_file):
@@ -65,11 +66,10 @@ def transcribeAudio(audio_file):
     # Make a request to the intent classification model
     try:
         response = requests.post(model_endpoint, files={"files": audio_file})
-        print("response:", response.json())
         if response.status_code == 200:
             result = response.json()
-            print("Transcription result:", result)
-            return result, 200
+            print("Transcription result:", result['results'][0]['transcript'])
+            return  result['results'][0]['transcript'], 200
         else:
             return (
                 jsonify(
