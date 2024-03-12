@@ -6,250 +6,43 @@ import os
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from database.database_operations import select_data_by_intent, connect_db
+from socket_handlers import (
+    handle_connect,
+    handle_disconnect,
+    handle_message,
+    handle_audio_message,
+    handle_video_message,
+)
+
+# from classification_routes import classification_bp
+# from recognition_routes import recognition_bp
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 # CORS(app)
 
-
 # Load environment variables from .env file
 load_dotenv()
+
+
+socketio.on_event("connect", handle_connect)
+socketio.on_event("disconnect", handle_disconnect)
+socketio.on_event("message", handle_message)
+socketio.on_event("audio_message", handle_audio_message)
+socketio.on_event("video_message", handle_video_message)
+
 
 print("CLASSIFICATION_MODEL_ENDPOINT:", os.getenv("CLASSIFICATION_MODEL_ENDPOINT"))
 print("RECOGNIZER_MODEL_ENDPOINT:", os.getenv("RECOGNIZER_MODEL_ENDPOINT"))
 
+# app.register_blueprint(classification_bp, url_prefix="/classification")
+# app.register_blueprint(recognition_bp, url_prefix="/recognition")
 
-@socketio.on("connect")
-def handle_connect():
-    print("Client connected")
-    print("===================")
-
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    # disconnect the client
-    print("Client disconnected")
-
-
-@socketio.on("message")
-def handle_message(message):
-    print("message:", message)
-    query_result, status = perform_classification(message)
-    client_url = os.getenv("CLIENT_URL")
-
-    if(status == 200):
-        if query_result:
-            intents = list(get_intents(query_result))
-            urls = select_data_by_intent(intents)
-
-        print(urls)
-        for key, value in urls.items():
-            urls[key] = client_url + value
-
-        print("sending", urls)
-
-        socketio.emit("response", urls)
-
-
-@socketio.on("audio_message")
-def handle_message(audio_blob):
-    transcribed_text,status_code = transcribeAudio(audio_blob)
-    # perform_classification(transcribed_text)
-    socketio.emit("audio_message", transcribed_text)
-
-def transcribeAudio(audio_file):
-    model_endpoint = os.getenv("TRANSCRIPTION_MODEL_ENDPOINT") + "/whisper/"
-    if not audio_file:
-        return jsonify({"error": "Missing audio file for transcription"}), 400
-
-    # Make a request to the intent classification model
-    try:
-        response = requests.post(model_endpoint, files={"files": audio_file})
-        if response.status_code == 200:
-            result = response.json()
-            print("Transcription result:", result['results'][0]['transcript'])
-            return  result['results'][0]['transcript'], 200
-        else:
-            return (
-                jsonify(
-                    {
-                        "error": f"Error calling the transcription model: {response.status_code}"
-                    }
-                ),
-                500,
-            )
-
-    except requests.RequestException as e:
-        return (
-            jsonify(
-                {
-                    "error": f"Error calling the transcription model: {str(e)}"
-                }
-            ),
-            500,
-        )
-
-@socketio.on("video_message")
-def handle_message(video_blob):
-    print("video blob recieved")
-    file_path = 'video_file.mp3'
-    with open(file_path, 'wb') as f:
-        f.write(video_blob)
-
-    socketio.emit("video_message", "hello bee video")
-
-
-def get_intents(intent_list):
-    upper_threshold = 0.7
-    lower_threshold = 0.3
-    unique_intents = set()
-    for i in range(len(intent_list)):
-        intent = intent_list[i]["text"].split("-")[1]
-        score = intent_list[i]["score"]
-        if i <= 0 and (score > upper_threshold):
-            return {intent}
-        if score < lower_threshold:
-            return unique_intents
-        unique_intents.add(intent)
-    return unique_intents
-
-
-# list_ = [{'id': '14', 'text': 'I need therapy support-Therapy Support', 'score': 0.5083133578300476}, {'id': '13', 'text': 'find me the resources for therapy-Therapy Support', 'score': 0.5053315162658691}, {'id': '11', 'text': 'Can I get information about therapy?-Therapy Support', 'score': 0.5044881105422974}, {'id': '12', 'text': 'Need details of therapy support for aphasia-Therapy Support', 'score': 0.5041456818580627}, {'id': '10', 'text': 'I want to know about therapy support-Therapy Support', 'score': 0.4566575288772583}, {'id': '7', 'text': 'resource page please-Resource page', 'score': 0.4267582595348358}, {'id': '8', 'text': 'navigate to resource page-Resource page', 'score': 0.4124424159526825}, {'id': '6', 'text': 'Show me the resources-Resource page', 'score': 0.3634762763977051}, {'id': '16', 'text': 'Guide me to the tech support page-Tech support', 'score': 0.35758644342422485}, {'id': '4', 'text': 'I need home page-Home page', 'score': 0.3337843418121338}]
-
-# print(get_intents(list_))
 
 @app.route("/")
 def hello_world():
     return "Welcome to FusionFlow backend!"
-
-
-def perform_classification(query):
-    model_endpoint = os.getenv("CLASSIFICATION_MODEL_ENDPOINT") + "/search"
-    print("CLASSIFICATION_MODEL_ENDPOINT:", os.getenv("CLASSIFICATION_MODEL_ENDPOINT"))
-
-    if not query:
-        return jsonify({"error": "Missing 'query' parameter"}), 400
-
-    # Specify the parameters for your request
-    params = {
-        "query": query,
-    }
-
-    # Make a request to the intent classification model
-    try:
-        response = requests.get(model_endpoint, params=params)
-        if response.status_code == 200:
-            result = response.json()
-            return result, 200
-        else:
-            return (
-                jsonify(
-                    {
-                        "error": f"Error calling the intent classification model: {response.status_code}"
-                    }
-                ),
-                500,
-            )
-
-    except requests.RequestException as e:
-        return (
-            jsonify(
-                {"error": f"Error calling the intent classification model: {str(e)}"}
-            ),
-            500,
-        )
-
-
-@app.route("/classify", methods=["GET"])
-def classify():
-    if request.method == "GET":
-        query = request.args.get("query", "")
-        return perform_classification(query)
-
-
-@app.route("/test-recognition", methods=["GET"])
-def test_recognition():
-    if request.method == "GET":
-        model_endpoint = os.getenv("RECOGNIZER_MODEL_ENDPOINT")
-
-        try:
-            response = requests.get(model_endpoint)
-            if response.status_code == 200:
-                result = response.json()
-                return jsonify(result), 200
-            else:
-                return (
-                    jsonify(
-                        {
-                            "error": f"Error calling the gesture recognition model: {response.status_code}"
-                        }
-                    ),
-                    500,
-                )
-
-        except requests.RequestException as e:
-            return (
-                jsonify(
-                    {"error": f"Error calling the gesture recognition model: {str(e)}"}
-                ),
-                500,
-            )
-
-
-"""
-POST /recognize
-Recognizes gestures from a given image.
-
-Parameters:
-- image (file): The image file to recognize gestures from.
-
-Responses:
-- 200 OK: Returns the recognition result from the gesture recognition model.
-- 400 Bad Request: Returns an error message if the 'image' parameter is missing.
-- 500 Internal Server Error: Returns an error message if there's an error calling the gesture recognition model.
-
-"""
-
-
-@app.route("/recognize", methods=["POST"])
-def recognize():
-    if request.method == "POST":
-        model_endpoint = (
-            os.getenv("RECOGNIZER_MODEL_ENDPOINT") + "/gesture-recognizer/process-image"
-        )
-
-        print("RECOGNIZER_MODEL_ENDPOINT:", os.getenv("RECOGNIZER_MODEL_ENDPOINT"))
-
-        file = request.files["file"]
-
-        if not file:
-            return jsonify({"error": "Missing 'image' parameter"}), 400
-
-        files = {"file": file}
-
-        try:
-            response = requests.post(model_endpoint, files=files)
-            if response.status_code == 200:
-                result = response.json()
-                return jsonify(result), 200
-            else:
-                return (
-                    jsonify(
-                        {
-                            "error": f"Error calling the gesture recognition model: {response.status_code}"
-                        }
-                    ),
-                    500,
-                )
-
-        except requests.RequestException as e:
-            return (
-                jsonify(
-                    {"error": f"Error calling the gesture recognition model: {str(e)}"}
-                ),
-                500,
-            )
 
 
 if __name__ == "__main__":
