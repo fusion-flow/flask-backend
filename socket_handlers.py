@@ -31,8 +31,8 @@ def handle_audio_message(audio_blob):
 
 def handle_video_message(video_blob):
     print("video blob recieved")
-    file_path = "video_file.mp3"
+    file_path = "video_frame.jpeg"
     with open(file_path, "wb") as f:
         f.write(video_blob)
 
-    emit("video_message", "hello bee video")
+    emit("video_message", "hello video")
