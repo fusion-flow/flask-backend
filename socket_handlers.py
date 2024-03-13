@@ -1,7 +1,6 @@
 from flask_socketio import emit
 from classification import perform_classification
 from audio_processing import transcribe_audio
-from database.database_operations import select_data_by_intent
 import os
 
 
