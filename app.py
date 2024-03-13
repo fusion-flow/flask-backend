@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import os
 from flask_socketio import SocketIO
 from flask_cors import CORS
-from database.database_operations import select_data_by_intent, connect_db
 from socket_handlers import (
     handle_connect,
     handle_disconnect,
