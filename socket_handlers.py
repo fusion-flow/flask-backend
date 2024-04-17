@@ -21,8 +21,12 @@ def handle_message(message):
     emit("response", urls)
 
 
-def handle_audio_message(audio_blob):
+def handle_audio_message(message):
+    text_message = message["message"]
+    audio_blob = message["audio"]
+    print("text input ",text_message)
     transcribed_text, status_code = transcribe_audio(audio_blob)
+    print("transcribed_text", transcribed_text)
     urls = perform_classification(transcribed_text)
     # print("query_result", query_result)
     emit("audio_message", urls)
