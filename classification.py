@@ -22,15 +22,17 @@ def perform_classification(query):
         response = requests.get(model_endpoint, params=params)
         if response.status_code == 200:
             result = response.json()
-            if result:
-                intents = list(get_intents(result))
-                print("intents", intents)
-                urls = select_data_by_intent(intents)
 
-            print(urls)
-            for key, value in urls.items():
-                urls[key] = client_url + value
-            return urls
+            return result
+            #     print("result", result)
+            #     intents = list(get_intents(result))
+            #     # print("intents", intents)
+            #     urls = select_data_by_intent(intents)
+
+            # print(urls)
+            # for key, value in urls.items():
+            #     urls[key] = client_url + value
+            # return urls
         else:
             return (
                 jsonify(
