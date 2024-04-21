@@ -25,16 +25,17 @@ def handle_message(message):
 def handle_audio_message(message):
     text_message = message["message"]
     audio_blob = message["audio"]
-
+    audio_intents, text_intents = [],[]
     print("text input ",text_message)
     transcribed_text, status_code = transcribe_audio(audio_blob)
     print("transcribed_text", transcribed_text)
-    audio_intents = perform_classification(transcribed_text)
+    if transcribed_text:
+        audio_intents = perform_classification(transcribed_text)
     if text_message:
         text_intents = perform_classification(text_message)
     
     fused_intents = fuse_intents(text_intents, audio_intents)
-    # print("fused_intents", fused_intents)
+    print("fused_intents", fused_intents)
 
     # print("query_result", query_result)
     # emit("audio_message", intents)

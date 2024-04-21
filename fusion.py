@@ -1,9 +1,6 @@
 def fuse_intents(text_intents, audio_intents):
-
-    if audio_intents:
-        combined_intents = text_intents + audio_intents
-    else:
-        combined_intents = text_intents
+    print("===========",text_intents, audio_intents)
+    combined_intents = text_intents + audio_intents
 
     combined_intents = sorted(combined_intents, key=lambda x: x["score"], reverse=True)
 
