@@ -13,7 +13,7 @@ def transcribe_audio(audio_file):
         response = requests.post(model_endpoint, files={"files": audio_file})
         if response.status_code == 200:
             result = response.json()
-            print("Transcription result:", result["results"][0]["transcript"])
+            # print("Transcription result:", result["results"][0]["transcript"])
             return result["results"][0]["transcript"], 200
         else:
             return (

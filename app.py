@@ -12,6 +12,7 @@ from socket_handlers import (
     handle_audio_message,
     handle_video_message,
 )
+import constants
 
 # from classification_routes import classification_bp
 # from recognition_routes import recognition_bp
@@ -20,6 +21,8 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 # CORS(app)
+
+app.secret_key = 'secret'
 
 # Load environment variables from .env file
 load_dotenv()
