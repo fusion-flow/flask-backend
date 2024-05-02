@@ -39,10 +39,17 @@ def handle_message(message):
     fused_intents = fuse_intents(intents, [])
     print("fused_intents", fused_intents)
     # print("state", session['state'])
+    # combine fused intent and session state to emit to client
+    json_data = {
+        "state": session['state'],
+        "intents": fused_intents
+    }
+
+    emit("messsage", json_data)
 
 
 def handle_audio_message(message):
-    toggle_status()
+    
     text_message = message["message"]
     audio_blob = message["audio"]
     audio_intents, text_intents, gesture_intent= [], [], None
@@ -54,15 +61,20 @@ def handle_audio_message(message):
     if text_message:
         text_intents = perform_classification(text_message)
 
-    if session['state'] == constants.NAVIGATION_PROCESS_STATE:
-        if session['gesture'] is not None:
-            gesture_intent = session['gesture']
+    # if session['state'] == constants.NAVIGATION_LIST_STATE:
+    #     if session['gesture'] is not None:
+    #         gesture_intent = session['gesture']
     
-    fused_intents = fuse_intents(text_intents, audio_intents, gesture_intent)
+    fused_intents = fuse_intents(text_intents, audio_intents)
     print("fused_intents", fused_intents)
 
+    json_data = {
+        "state": session['state'],
+        "intents": fused_intents
+    }
+
     # print("query_result", query_result)
-    # emit("audio_message", intents)
+    emit("audio_message", json_data)
 
 
 def handle_video_message(video_blob):
