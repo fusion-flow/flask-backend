@@ -7,6 +7,7 @@ from flask import session
 
 from fusion import fuse_intents
 from video_processing import recognize_gesture
+from dialogue_manager import get_intents, generate_response
 
 
 def handle_connect():
@@ -36,16 +37,27 @@ def handle_message(message):
     print("state handle", session['state'])
     print("message:", message)
     intents = perform_classification(message)
+
+    # map keywords with intents
+    intents = get_intents(intents)
+    print("intents after mapping ", intents)
+
     fused_intents = fuse_intents(intents, [])
     print("fused_intents", fused_intents)
+
+    response, intent_url_mapping  = generate_response(fused_intents)
+
+    print(response)
+    print(intent_url_mapping)
     # print("state", session['state'])
     # combine fused intent and session state to emit to client
     json_data = {
         "state": session['state'],
-        "intents": fused_intents
+        "response": response,
+        "intent_url_mapping": intent_url_mapping
     }
 
-    emit("messsage", json_data)
+    emit("response", json_data)
 
 
 def handle_audio_message(message):

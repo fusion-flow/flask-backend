@@ -24,7 +24,7 @@ def identify_intents(intent_list):
 
     session['state'] = constants.NORMAL_STATE
     for i in range(len(intent_list)):
-        intent = intent_list[i]["text"].split("-")[1]
+        intent = intent_list[i]["intent"]
         score = intent_list[i]["score"]
 
         if i <= 0 and (score > upper_threshold):
