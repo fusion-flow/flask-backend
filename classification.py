@@ -77,4 +77,11 @@ def select_data_by_intent(intents):
         "Home page": "home",
     }
 
+    result = {}
+
+    for intent in intents:
+        result[intent] = url_mapping[intent]
+
+    return result
+
     return {intent: url_mapping[intent] for intent in intents}
