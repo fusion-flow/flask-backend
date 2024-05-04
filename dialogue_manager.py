@@ -1,0 +1,100 @@
+from data import keyword_intent, intent_url
+import constants
+from flask import session
+from stories import stories
+
+def get_intents(keywords_scores):
+
+    # iterate keywords and scores and map with intent
+    for i in range(len(keywords_scores)):
+
+        keyword = keywords_scores[i]["text"]
+
+        # check if keyword exist in keyword_intent dictionary
+        if keyword not in keyword_intent:
+            keyword_intent.pop(i) # remove non existing keywords from the keyword_intent list
+            continue
+        
+        intent = keyword_intent[keyword]
+
+        keywords_scores[i]["intent"] = intent
+
+    return keywords_scores
+
+def generate_response(fused_intents):
+
+    # set states session variable if it does not exists
+    if "states" not in session:
+        session["states"] = []
+
+    intent_url_mapping = {}
+    states = session["states"]
+
+    # unavailable page
+    if len(fused_intents) == 0:
+        response = stories["unavailable_page"](states)
+        intent = "unavailable_page"
+        session["state"] = constants.UNAVAILABLE
+    # direct navigation 
+    elif session["state"] != constants.NAVIGATION_LIST_STATE and len(fused_intents) == 1:
+        intent = fused_intents[0]
+        intent_url_mapping = get_urls(fused_intents)
+
+        if intent not in stories:
+            response = stories["navigation"](states)
+            session["state"] = constants.DIRECT_NAVIGATION
+        else:
+            response = stories[intent](states)
+    # list    
+    # if session["state"] == constants.NAVIGATION_LIST_STATE and fused_intents:
+    else:
+        states = session["states"]
+        response = stories["navigation_list"](states)
+        intent = "navigation_list"
+        other_intents = []
+
+        # remove unnessary intents from the list
+        ## WHAT HAPPEN WHEN THE FIRST ELEMENT IS INTENT IN STORIES ?
+        for i in range(len(fused_intents)):
+            if fused_intents[i] in stories:
+                other_intents.append(fused_intents.pop(i))
+        
+        # get only first five intents
+        fused_intents = fused_intents[:5]
+
+        if fused_intents:
+            # get intent to url mapping result
+            intent_url_mapping = get_urls(fused_intents)
+            session["state"] = constants.NAVIGATION_LIST_STATE
+            session["states"].append(constants.NAVIGATION_LIST_STATE)
+        else:
+            # all intents are other intents
+            intent = other_intents[0]
+            response = stories[intent](states)
+            session["state"] = constants.NORMAL_STATE
+
+    # check if state is denied
+    if intent == "deny":
+        session["state"] = constants.DENIED
+        session["states"].append(constants.DENIED)
+    elif intent != "navigation_list":
+        session["states"].append(session["state"])
+
+    return response, intent_url_mapping
+
+
+def get_urls(intents):
+    intent_url_mapping = {}
+
+    # iterate intents and map with url
+    for i in range(len(intents)):
+        intent = intents[i]
+
+        # check if intent exist in intent_url dictionary
+        if intent not in intent_url:
+            continue
+        
+        url = intent_url[intent]
+        intent_url_mapping[intent] = url
+
+    return intent_url_mapping
