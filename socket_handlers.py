@@ -70,8 +70,10 @@ def handle_audio_message(message):
     print("transcribed_text", transcribed_text)
     if transcribed_text:
         audio_intents = perform_classification(transcribed_text)
+        audio_intents = get_intents(audio_intents)
     if text_message:
         text_intents = perform_classification(text_message)
+        text_intents = get_intents(text_intents)
 
     # if session['state'] == constants.NAVIGATION_LIST_STATE:
     #     if session['gesture'] is not None:
@@ -80,13 +82,16 @@ def handle_audio_message(message):
     fused_intents = fuse_intents(text_intents, audio_intents)
     print("fused_intents", fused_intents)
 
+    response, intent_url_mapping  = generate_response(fused_intents)
+
     json_data = {
         "state": session['state'],
-        "intents": fused_intents
+        "response": response,
+        "intent_url_mapping": intent_url_mapping
     }
 
     # print("query_result", query_result)
-    emit("audio_message", json_data)
+    emit("response", json_data)
 
 
 def handle_video_message(video_blob):
