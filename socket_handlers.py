@@ -61,6 +61,8 @@ def handle_message(message):
     }
 
     emit("response", json_data)
+    # emit("response", fused_intents)
+    emit("response", json_data)
 
 
 def handle_audio_message(message):
@@ -98,10 +100,11 @@ def handle_audio_message(message):
 
     # print("query_result", query_result)
     emit("response", json_data)
+    # emit("response", fused_intents)
 
 
 def handle_video_message(video_blob):
-    toggle_status()
+    # toggle_status()
     if session['state'] != constants.NAVIGATION_LIST_STATE:
         return
     file_path = "video_frame.jpeg"
@@ -113,12 +116,6 @@ def handle_video_message(video_blob):
     # check confidence level
     if gesture['confidence'] > 0.5:
         print("gesture intent", gesture['gesture'])
+        emit("gesture", gesture)
     else:
         print("gesture intent not confident enough")
-
-        if 'gesture' not in session:
-            session['gesture'] = gesture
-        elif session['gesture']['confidence'] < gesture['confidence']:
-            session['gesture'] = gesture
-
-
