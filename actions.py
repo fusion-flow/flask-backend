@@ -17,7 +17,7 @@ def utter_happy(states):
 
 def handle_deny(states):
   # check if previous state is denied
-  if states[-1] == constants.DENIED:
+  if states[-2] == constants.DENIED:
     return utter_unavailability(states)
   
   return "I would appreciate it if you could provide additional clarification on your request."

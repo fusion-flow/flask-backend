@@ -37,8 +37,6 @@ def handle_message(message):
     print("state handle", session['state'])
     print("message:", message)
 
-    # remove stop words 
-    message = remove_stopwords(message)
     intents = perform_classification(message)
 
     # map keywords with intents
@@ -62,7 +60,6 @@ def handle_message(message):
 
     emit("response", json_data)
     # emit("response", fused_intents)
-    emit("response", json_data)
 
 
 def handle_audio_message(message):
@@ -74,12 +71,9 @@ def handle_audio_message(message):
     transcribed_text, status_code = transcribe_audio(audio_blob)
     print("transcribed_text", transcribed_text)
     if transcribed_text:
-        # remove stop words
-        transcribed_text = remove_stopwords(transcribed_text)
         audio_intents = perform_classification(transcribed_text)
         audio_intents = get_intents(audio_intents)
     if text_message:
-        text_message = remove_stopwords(text_message)
         text_intents = perform_classification(text_message)
         text_intents = get_intents(text_intents)
 
