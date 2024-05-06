@@ -109,7 +109,10 @@ def handle_video_message(video_blob):
         print("gesture intent", gesture['gesture'])
     else:
         print("gesture intent not confident enough")
-        if session['gesture']['confidence'] < gesture['confidence']:
+
+        if 'gesture' not in session:
+            session['gesture'] = gesture
+        elif session['gesture']['confidence'] < gesture['confidence']:
             session['gesture'] = gesture
 
 
