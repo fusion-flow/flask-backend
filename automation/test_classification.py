@@ -59,3 +59,29 @@ def test_fuse_intents():
     {"text": "Direct me to the home-Home page", "score": 0.15}
   ]
   assert fuse_intents(text_intents, audio_intents) == ["Home page"]
+
+def test_fuse_audio_intents():
+  """Test the fusion of intents."""
+  text_intents = []
+  audio_intents = [
+    {"text": "take me to the main page-Home page", "score": 0.66},
+    {"text": "I need home page-Home page", "score": 0.55},
+    {"text": "Direct me to the home-Home page", "score": 0.15}
+  ]
+  assert fuse_intents(text_intents, audio_intents) == ["Home page"]
+
+def test_fuse_text_intents():
+  """Test the fusion of intents."""
+  text_intents = [
+    {"text": "take me to the main page-Home page", "score": 0.66},
+    {"text": "I need home page-Home page", "score": 0.55},
+    {"text": "Direct me to the home-Home page", "score": 0.15}
+  ]
+  audio_intents = []
+  assert fuse_intents(text_intents, audio_intents) == ["Home page"]
+
+def test_fuse_no_intents():
+  """Test the fusion of intents."""
+  text_intents = []
+  audio_intents = []
+  assert fuse_intents(text_intents, audio_intents) == []
