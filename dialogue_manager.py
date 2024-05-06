@@ -2,6 +2,18 @@ from data import keyword_intent, intent_url
 import constants
 from flask import session
 from stories import stories
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+stop_words = set(stopwords.words('english'))
+
+def remove_stopwords(sentence):
+        
+    word_tokens = word_tokenize(sentence)
+    filtered_words = [w for w in word_tokens if not w.lower() in stop_words]
+    filtered_sentence = ' '.join(filtered_words)
+    
+    return filtered_sentence
 
 def get_intents(keywords_scores):
 
@@ -55,9 +67,14 @@ def generate_response(fused_intents):
 
         # remove unnessary intents from the list
         ## WHAT HAPPEN WHEN THE FIRST ELEMENT IS INTENT IN STORIES ?
-        for i in range(len(fused_intents)):
+        i = 0
+        num_fuesd_intents = len(fused_intents)
+        while i < num_fuesd_intents:
             if fused_intents[i] in stories:
                 other_intents.append(fused_intents.pop(i))
+                num_fuesd_intents -= 1
+            else:
+                i += 1
         
         # get only first five intents
         fused_intents = fused_intents[:5]
