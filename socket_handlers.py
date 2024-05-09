@@ -7,7 +7,7 @@ from flask import session
 
 from fusion import fuse_intents
 from video_processing import recognize_gesture
-from dialogue_manager import get_intents, generate_response, remove_stopwords
+from dialogue_manager import get_intents, generate_response
 
 
 def handle_connect():
@@ -101,15 +101,22 @@ def handle_video_message(video_blob):
     # toggle_status()
     if session['state'] != constants.NAVIGATION_LIST_STATE:
         return
-    file_path = "video_frame.jpeg"
+    file_path = "videos.jpeg"
     with open(file_path, "wb") as f:
         f.write(video_blob)
+
+    print("before recognizing")
     
     gesture = recognize_gesture(video_blob)
     # {'gesture': 1, 'confidence': 0.4908}
     # check confidence level
-    if gesture['confidence'] > 0.5:
+    print("gesture intent", gesture['gesture'], gesture['confidence'])
+    if gesture['confidence'] > 0.4:
         print("gesture intent", gesture['gesture'])
-        emit("gesture", gesture)
+        gesture_no = gesture['gesture']
+        if (len(session['intent_list']) < gesture_no):
+            return
+        url_intent = session["intent_list"][gesture_no-1]
+        emit("gesture", url_intent)
     else:
         print("gesture intent not confident enough")

@@ -2,18 +2,18 @@ from data import keyword_intent, intent_url
 import constants
 from flask import session
 from stories import stories
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
+# from nltk.tokenize import word_tokenize
+# from nltk.corpus import stopwords
 
-stop_words = set(stopwords.words('english'))
+# stop_words = set(stopwords.words('english'))
 
-def remove_stopwords(sentence):
+# def remove_stopwords(sentence):
         
-    word_tokens = word_tokenize(sentence)
-    filtered_words = [w for w in word_tokens if not w.lower() in stop_words]
-    filtered_sentence = ' '.join(filtered_words)
+#     word_tokens = word_tokenize(sentence)
+#     filtered_words = [w for w in word_tokens if not w.lower() in stop_words]
+#     filtered_sentence = ' '.join(filtered_words)
     
-    return filtered_sentence
+#     return filtered_sentence
 
 def get_intents(keywords_scores):
 
@@ -102,6 +102,7 @@ def generate_response(fused_intents):
 
 def get_urls(intents):
     intent_url_mapping = {}
+    url_list = []
 
     # iterate intents and map with url
     for i in range(len(intents)):
@@ -113,5 +114,8 @@ def get_urls(intents):
         
         url = intent_url[intent]
         intent_url_mapping[intent] = url
+        url_list.append([url, intent])
+    
+    session["intent_list"] = url_list
 
     return intent_url_mapping
