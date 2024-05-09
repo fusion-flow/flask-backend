@@ -15,23 +15,7 @@ from stories import stories
     
 #     return filtered_sentence
 
-def get_intents(keywords_scores):
 
-    # iterate keywords and scores and map with intent
-    for i in range(len(keywords_scores)):
-
-        keyword = keywords_scores[i]["text"]
-
-        # check if keyword exist in keyword_intent dictionary
-        if keyword not in keyword_intent:
-            keyword_intent.pop(i) # remove non existing keywords from the keyword_intent list
-            continue
-        
-        intent = keyword_intent[keyword]
-
-        keywords_scores[i]["intent"] = intent
-
-    return keywords_scores
 
 def generate_response(fused_intents):
 
@@ -53,7 +37,7 @@ def generate_response(fused_intents):
         intent_url_mapping = get_urls(fused_intents)
 
         if intent not in stories:
-            response = stories["navigation"](states)
+            response = stories["navigation"](states, intent)
             session["state"] = constants.DIRECT_NAVIGATION
         else:
             response = stories[intent](states)

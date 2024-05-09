@@ -1,6 +1,7 @@
 import os
 import requests
 from flask import jsonify
+from data import keyword_intent
 
 client_url = os.getenv("CLIENT_URL")
 
@@ -52,19 +53,23 @@ def perform_classification(query):
         )
 
 
-def get_intents(intent_list):
-    upper_threshold = 0.7
-    lower_threshold = 0.3
-    unique_intents = set()
-    for i in range(len(intent_list)):
-        intent = intent_list[i]["text"].split("-")[1]
-        score = intent_list[i]["score"]
-        if i <= 0 and (score > upper_threshold):
-            return {intent}
-        if score < lower_threshold:
-            return unique_intents
-        unique_intents.add(intent)
-    return unique_intents
+def get_intents(keywords_scores):
+
+    # iterate keywords and scores and map with intent
+    for i in range(len(keywords_scores)):
+
+        keyword = keywords_scores[i]["text"]
+
+        # check if keyword exist in keyword_intent dictionary
+        if keyword not in keyword_intent:
+            keyword_intent.pop(i) # remove non existing keywords from the keyword_intent list
+            continue
+        
+        intent = keyword_intent[keyword]
+
+        keywords_scores[i]["intent"] = intent
+
+    return keywords_scores
 
 
 def select_data_by_intent(intents):

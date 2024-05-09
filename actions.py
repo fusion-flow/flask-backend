@@ -9,8 +9,9 @@ def utter_greet(states):
 def utter_capability(states):
   return "I can help you to find resources from this website"
 
-def utter_if_right_page(states):
-  return "Is this the page you wanted?"
+def utter_if_right_page(states, intent):
+  response = "We have redirected you to " + intent +"</br>Is this the resource you wanted?"
+  return response
 
 def utter_happy(states):
   return "Great!!! Let me know if you need anything else."

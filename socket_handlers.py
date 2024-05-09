@@ -1,5 +1,5 @@
 from flask_socketio import emit
-from classification import perform_classification
+from classification import perform_classification, get_intents
 from audio_processing import transcribe_audio
 import os
 import constants
@@ -7,7 +7,7 @@ from flask import session
 
 from fusion import fuse_intents
 from video_processing import recognize_gesture
-from dialogue_manager import get_intents, generate_response
+from dialogue_manager import generate_response
 
 
 def handle_connect():
