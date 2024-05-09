@@ -20,11 +20,14 @@ from stories import stories
 def generate_response(fused_intents):
 
     # set states session variable if it does not exists
-    if "states" not in session:
+    if "states" in session:
+        states = session["states"]
+    else:
         session["states"] = []
+        states = session["states"]
 
     intent_url_mapping = {}
-    states = session["states"]
+    
 
     # unavailable page
     if len(fused_intents) == 0:
@@ -80,6 +83,8 @@ def generate_response(fused_intents):
         session["states"].append(constants.DENIED)
     elif intent != "navigation_list":
         session["states"].append(session["state"])
+
+    print("states in generate response", session["states"])
 
     return response, intent_url_mapping
 

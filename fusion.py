@@ -19,7 +19,7 @@ def fuse_intents(text_intents, audio_intents):
 
 def identify_intents(intent_list):
     upper_threshold = 0.7
-    lower_threshold = 0.3
+    lower_threshold = 0.35
     unique_intents = []
 
     session['state'] = constants.NORMAL_STATE

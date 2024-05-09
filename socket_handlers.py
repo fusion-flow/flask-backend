@@ -110,7 +110,10 @@ def handle_video_message(video_blob):
     gesture = recognize_gesture(video_blob)
     # {'gesture': 1, 'confidence': 0.4908}
     # check confidence level
-    print("gesture intent", gesture['gesture'], gesture['confidence'])
+
+    if not(isinstance(gesture, dict) and 'gesture' in gesture and 'confidence' in gesture):
+        return
+    print("gesture intent", gesture)
     if gesture['confidence'] > 0.4:
         print("gesture intent", gesture['gesture'])
         gesture_no = gesture['gesture']
