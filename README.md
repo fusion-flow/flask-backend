@@ -2,13 +2,9 @@
 
 Main backend of the system
 
-## Stop word removal 
+## How to run
 
 ```python
-pip install nltk
-python -m nltk.downloader punkt
-python -m nltk.downloader stopwords
-
+pip install -r requirements.txt
+python app.py
 ```
-
-Execute above command for stop word removal function
